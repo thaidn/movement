@@ -16,9 +16,17 @@ tools/
 bin/
 gen/
 
+# Eclipse files
+.classpath
+.project
+.settings
+
 # Gradle files
 .gradle/
 build/
+
+# Swap files
+*.swp
 
 # Local configuration file (sdk path, etc)
 local.properties
