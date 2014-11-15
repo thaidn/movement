@@ -1,3 +1,7 @@
+# Tools and local files
+local/
+tools/
+
 # Built application files
 *.apk
 *.ap_
@@ -11,7 +15,6 @@
 # Generated files
 bin/
 gen/
-local/
 
 # Gradle files
 .gradle/
