@@ -5,13 +5,20 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gcm.server.*;
 
-import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -22,12 +29,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Main UI for the demo app.
  */
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    
+    static final String NOTIFY_NEW_MESSAGE = "notify-new-message";
 
     /**
      * Substitute you own sender ID here. This is the project number you got
@@ -43,13 +52,12 @@ public class MainActivity extends Activity {
     /**
      * Alice's RegId.
      */
-    String WHITE_DEVICE_ID = "APA91bG4qo5vxHDPIXuwLk9K2WfSMuTFA0fInMwXlGItbXfYqvxEcMryssiEl-TjPpaj2iYHOPRQvwecdYFRXQvHeLH_-2FlWl53s5FgCCWaONXff3lYj71oPtMP7AIBY5meEVKu2KlpeSsFLkcVoU-s_RBX52nUwQ";
-    
+    String WHITE_DEVICE_ID = "APA91bHWlDkqT9C0pj6XN_r4r4YBDGIwrjJYp9_f5kz8AK4i7NeVebnHvaA11IKY8nIzghF-cO5K6HYI16FkNhQ__WcZDaRLkHaTnEzVEo47HOQQy1UfnkZ3UnUfLlHL4PRpiVTlu90SGgwpyvNdoNiAfzHbc1zDAg";
     /**
      * Bob's RegId.
      */
-    String BLACK_DEVICE_ID = "APA91bFF6rpQOXwkH-dXGpBOzmJ1oXJ6zyhJiWoBocJAL20YAiWLTeK-Pojv-whkogRtvFwyMB5f_ccMOZFnfcin94ECugVJoBDVnT1K7SGABZOViClp5eT1LDYjSUkKRiohYb1wImNskEUovXMiidIiHts1tFAb6A";
-
+    String BLACK_DEVICE_ID = "APA91bExkaS0M9B4uAFDjXl9l5VfKMqM4x6yS3XIrlTuR1rHqLPKa3etimpKp2svz5L5EpQnhYZMgrkiXUsJK8uNcxQRQYta6QiPPPugW8YbYRUpVO2MpmvOs1JxiaomCPAmyprL65tuVlcnIYPpzIZX3xGRM8t8qA";
+    
     /**
      * Tag used on log messages.
      */
@@ -61,6 +69,13 @@ public class MainActivity extends Activity {
     Context context;
 
     String regid;
+    
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+          displayNewMessageNotification();
+        }
+      };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,6 +99,12 @@ public class MainActivity extends Activity {
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
+        
+        // Add a broadcast receive that displays new message notification.
+        LocalBroadcastManager bManager = LocalBroadcastManager.getInstance(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(NOTIFY_NEW_MESSAGE);
+        bManager.registerReceiver(receiver, filter);
     }
 
     @Override
@@ -200,11 +221,20 @@ public class MainActivity extends Activity {
             }
         }.execute(null, null, null);
     }
+    
+    private void displayNewMessageNotification() {
+		Fragment frag = new MessageNotificationFragment();
+		FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		ft.add(R.id.main_layout, frag);
+		ft.commit();
+    }
 
     // Send an upstream message.
     public void onClick(final View view) {
 
     	if (view == findViewById(R.id.ping)) {
+    		
     		new AsyncTask<Void, Void, String>() {
                 @Override
                 protected String doInBackground(Void... params) {

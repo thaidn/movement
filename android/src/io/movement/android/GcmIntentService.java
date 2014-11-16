@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 
@@ -50,13 +51,16 @@ public class GcmIntentService extends IntentService {
             // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 sendNotification("Received: " + extras.toString());
+                Intent alertNewMessage = new Intent(MainActivity.NOTIFY_NEW_MESSAGE);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(alertNewMessage);
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
-
+  
+    
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
