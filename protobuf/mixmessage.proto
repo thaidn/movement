@@ -1,0 +1,9 @@
+package movement;
+
+option java_package = "io.movement";
+option java_outer_classname = "MixMessageProtos";
+
+message MixMessage {
+	optional bytes pseudonym = 1;
+	optional bytes payload = 2;
+}
