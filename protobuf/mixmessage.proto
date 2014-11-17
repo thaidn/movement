@@ -3,22 +3,28 @@ package movement;
 option java_package = "io.movement";
 option java_outer_classname = "MixMessageProtos";
 
+// When a node receives a MixMessage, it uses the ephemeralKey (and its
+// private key) to generate a secret to verify-then-decrypt message payload.
+// The clear text payload contains the address of the next node and what
+// should be sent there.
 message MixMessage {
 	optional bytes ephemeralKey = 1;
-	// HMAC-SHA256 of payload.
-	optional bytes mac = 3;
-	// Contains an encrypted MixPayload, and will be sent to the next node.
-	optional bytes payload = 2;
-}
-
-message MixPayload {
-	// (GCM) address of the next node that will receive this payload.
-	optional bytes destination = 1;
-	// HMAC-SHA256 of partialPayload and padding. The padding is not included
-	// in the current payload, but it will be generated (deterministicly)
-	// before partialPayload is sent to the next node. Note that |padding| is
-	// equal to sum of |mac| and |destination|.
+	// Truncated HMAC-SHA256 of payload.
 	optional bytes mac = 2;
-	// Payload for the next node.
-	optional bytes partialPayload = 3;
+	// The current node will parse this payload to build a new MixMessage which
+	// will be sent to the next node. To avoid traffic analysis the new message
+	// will be padded to the same length of the current one. In fact all
+	// MixMessages have the same length.
+	message Payload {
+		// (GCM) registration ID of the next node.
+		optional bytes destination = 1;
+		// Truncated HMAC-SHA256 of the new MixMessage. The MAC covers both the
+		// partial payload and the padding.
+		optional bytes mac = 2;
+		// Partial payload of the new MixMessage that doesn't include padding.
+		// The current node will generate the padding deterministicly to ensure
+		// all MixMessages having the same length.
+		optional bytes partialPayload = 3;
+	}
+	optional bytes payload = 3;
 }
