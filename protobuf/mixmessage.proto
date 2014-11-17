@@ -4,6 +4,21 @@ option java_package = "io.movement";
 option java_outer_classname = "MixMessageProtos";
 
 message MixMessage {
-	optional bytes pseudonym = 1;
+	optional bytes ephemeralKey = 1;
+	// HMAC-SHA256 of payload.
+	optional bytes mac = 3;
+	// Contains an encrypted MixPayload, and will be sent to the next node.
 	optional bytes payload = 2;
+}
+
+message MixPayload {
+	// (GCM) address of the next node that will receive this payload.
+	optional bytes destination = 1;
+	// HMAC-SHA256 of partialPayload and padding. The padding is not included
+	// in the current payload, but it will be generated (deterministicly)
+	// before partialPayload is sent to the next node. Note that |padding| is
+	// equal to sum of |mac| and |destination|.
+	optional bytes mac = 2;
+	// Payload for the next node.
+	optional bytes partialPayload = 3;
 }

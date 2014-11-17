@@ -13,22 +13,47 @@ public final class MixMessageProtos {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional bytes pseudonym = 1;</code>
+     * <code>optional bytes ephemeralKey = 1;</code>
      */
-    boolean hasPseudonym();
+    boolean hasEphemeralKey();
     /**
-     * <code>optional bytes pseudonym = 1;</code>
+     * <code>optional bytes ephemeralKey = 1;</code>
      */
-    com.google.protobuf.ByteString getPseudonym();
+    com.google.protobuf.ByteString getEphemeralKey();
 
     /**
-     * <code>optional bytes message = 2;</code>
+     * <code>optional bytes mac = 3;</code>
+     *
+     * <pre>
+     * HMAC-SHA256 of payload.
+     * </pre>
      */
-    boolean hasMessage();
+    boolean hasMac();
     /**
-     * <code>optional bytes message = 2;</code>
+     * <code>optional bytes mac = 3;</code>
+     *
+     * <pre>
+     * HMAC-SHA256 of payload.
+     * </pre>
      */
-    com.google.protobuf.ByteString getMessage();
+    com.google.protobuf.ByteString getMac();
+
+    /**
+     * <code>optional bytes payload = 2;</code>
+     *
+     * <pre>
+     * Contains an encrypted MixPayload, and will be sent to the next node.
+     * </pre>
+     */
+    boolean hasPayload();
+    /**
+     * <code>optional bytes payload = 2;</code>
+     *
+     * <pre>
+     * Contains an encrypted MixPayload, and will be sent to the next node.
+     * </pre>
+     */
+    com.google.protobuf.ByteString getPayload();
   }
   /**
    * Protobuf type {@code movement.MixMessage}
@@ -84,12 +109,17 @@ public final class MixMessageProtos {
             }
             case 10: {
               bitField0_ |= 0x00000001;
-              pseudonym_ = input.readBytes();
+              ephemeralKey_ = input.readBytes();
               break;
             }
             case 18: {
+              bitField0_ |= 0x00000004;
+              payload_ = input.readBytes();
+              break;
+            }
+            case 26: {
               bitField0_ |= 0x00000002;
-              message_ = input.readBytes();
+              mac_ = input.readBytes();
               break;
             }
           }
@@ -132,39 +162,71 @@ public final class MixMessageProtos {
     }
 
     private int bitField0_;
-    public static final int PSEUDONYM_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString pseudonym_;
+    public static final int EPHEMERALKEY_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString ephemeralKey_;
     /**
-     * <code>optional bytes pseudonym = 1;</code>
+     * <code>optional bytes ephemeralKey = 1;</code>
      */
-    public boolean hasPseudonym() {
+    public boolean hasEphemeralKey() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional bytes pseudonym = 1;</code>
+     * <code>optional bytes ephemeralKey = 1;</code>
      */
-    public com.google.protobuf.ByteString getPseudonym() {
-      return pseudonym_;
+    public com.google.protobuf.ByteString getEphemeralKey() {
+      return ephemeralKey_;
     }
 
-    public static final int MESSAGE_FIELD_NUMBER = 2;
-    private com.google.protobuf.ByteString message_;
+    public static final int MAC_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString mac_;
     /**
-     * <code>optional bytes message = 2;</code>
+     * <code>optional bytes mac = 3;</code>
+     *
+     * <pre>
+     * HMAC-SHA256 of payload.
+     * </pre>
      */
-    public boolean hasMessage() {
+    public boolean hasMac() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional bytes message = 2;</code>
+     * <code>optional bytes mac = 3;</code>
+     *
+     * <pre>
+     * HMAC-SHA256 of payload.
+     * </pre>
      */
-    public com.google.protobuf.ByteString getMessage() {
-      return message_;
+    public com.google.protobuf.ByteString getMac() {
+      return mac_;
+    }
+
+    public static final int PAYLOAD_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString payload_;
+    /**
+     * <code>optional bytes payload = 2;</code>
+     *
+     * <pre>
+     * Contains an encrypted MixPayload, and will be sent to the next node.
+     * </pre>
+     */
+    public boolean hasPayload() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional bytes payload = 2;</code>
+     *
+     * <pre>
+     * Contains an encrypted MixPayload, and will be sent to the next node.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getPayload() {
+      return payload_;
     }
 
     private void initFields() {
-      pseudonym_ = com.google.protobuf.ByteString.EMPTY;
-      message_ = com.google.protobuf.ByteString.EMPTY;
+      ephemeralKey_ = com.google.protobuf.ByteString.EMPTY;
+      mac_ = com.google.protobuf.ByteString.EMPTY;
+      payload_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -180,10 +242,13 @@ public final class MixMessageProtos {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, pseudonym_);
+        output.writeBytes(1, ephemeralKey_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(2, payload_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, message_);
+        output.writeBytes(3, mac_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -196,11 +261,15 @@ public final class MixMessageProtos {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, pseudonym_);
+          .computeBytesSize(1, ephemeralKey_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, payload_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, message_);
+          .computeBytesSize(3, mac_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -319,10 +388,12 @@ public final class MixMessageProtos {
 
       public Builder clear() {
         super.clear();
-        pseudonym_ = com.google.protobuf.ByteString.EMPTY;
+        ephemeralKey_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
-        message_ = com.google.protobuf.ByteString.EMPTY;
+        mac_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
+        payload_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -354,11 +425,15 @@ public final class MixMessageProtos {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.pseudonym_ = pseudonym_;
+        result.ephemeralKey_ = ephemeralKey_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.message_ = message_;
+        result.mac_ = mac_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.payload_ = payload_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -375,11 +450,14 @@ public final class MixMessageProtos {
 
       public Builder mergeFrom(io.movement.MixMessageProtos.MixMessage other) {
         if (other == io.movement.MixMessageProtos.MixMessage.getDefaultInstance()) return this;
-        if (other.hasPseudonym()) {
-          setPseudonym(other.getPseudonym());
+        if (other.hasEphemeralKey()) {
+          setEphemeralKey(other.getEphemeralKey());
         }
-        if (other.hasMessage()) {
-          setMessage(other.getMessage());
+        if (other.hasMac()) {
+          setMac(other.getMac());
+        }
+        if (other.hasPayload()) {
+          setPayload(other.getPayload());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -408,72 +486,139 @@ public final class MixMessageProtos {
       }
       private int bitField0_;
 
-      private com.google.protobuf.ByteString pseudonym_ = com.google.protobuf.ByteString.EMPTY;
+      private com.google.protobuf.ByteString ephemeralKey_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>optional bytes pseudonym = 1;</code>
+       * <code>optional bytes ephemeralKey = 1;</code>
        */
-      public boolean hasPseudonym() {
+      public boolean hasEphemeralKey() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional bytes pseudonym = 1;</code>
+       * <code>optional bytes ephemeralKey = 1;</code>
        */
-      public com.google.protobuf.ByteString getPseudonym() {
-        return pseudonym_;
+      public com.google.protobuf.ByteString getEphemeralKey() {
+        return ephemeralKey_;
       }
       /**
-       * <code>optional bytes pseudonym = 1;</code>
+       * <code>optional bytes ephemeralKey = 1;</code>
        */
-      public Builder setPseudonym(com.google.protobuf.ByteString value) {
+      public Builder setEphemeralKey(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        pseudonym_ = value;
+        ephemeralKey_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional bytes pseudonym = 1;</code>
+       * <code>optional bytes ephemeralKey = 1;</code>
        */
-      public Builder clearPseudonym() {
+      public Builder clearEphemeralKey() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        pseudonym_ = getDefaultInstance().getPseudonym();
+        ephemeralKey_ = getDefaultInstance().getEphemeralKey();
         onChanged();
         return this;
       }
 
-      private com.google.protobuf.ByteString message_ = com.google.protobuf.ByteString.EMPTY;
+      private com.google.protobuf.ByteString mac_ = com.google.protobuf.ByteString.EMPTY;
       /**
-       * <code>optional bytes message = 2;</code>
+       * <code>optional bytes mac = 3;</code>
+       *
+       * <pre>
+       * HMAC-SHA256 of payload.
+       * </pre>
        */
-      public boolean hasMessage() {
+      public boolean hasMac() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional bytes message = 2;</code>
+       * <code>optional bytes mac = 3;</code>
+       *
+       * <pre>
+       * HMAC-SHA256 of payload.
+       * </pre>
        */
-      public com.google.protobuf.ByteString getMessage() {
-        return message_;
+      public com.google.protobuf.ByteString getMac() {
+        return mac_;
       }
       /**
-       * <code>optional bytes message = 2;</code>
+       * <code>optional bytes mac = 3;</code>
+       *
+       * <pre>
+       * HMAC-SHA256 of payload.
+       * </pre>
        */
-      public Builder setMessage(com.google.protobuf.ByteString value) {
+      public Builder setMac(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000002;
-        message_ = value;
+        mac_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional bytes message = 2;</code>
+       * <code>optional bytes mac = 3;</code>
+       *
+       * <pre>
+       * HMAC-SHA256 of payload.
+       * </pre>
        */
-      public Builder clearMessage() {
+      public Builder clearMac() {
         bitField0_ = (bitField0_ & ~0x00000002);
-        message_ = getDefaultInstance().getMessage();
+        mac_ = getDefaultInstance().getMac();
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString payload_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes payload = 2;</code>
+       *
+       * <pre>
+       * Contains an encrypted MixPayload, and will be sent to the next node.
+       * </pre>
+       */
+      public boolean hasPayload() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bytes payload = 2;</code>
+       *
+       * <pre>
+       * Contains an encrypted MixPayload, and will be sent to the next node.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getPayload() {
+        return payload_;
+      }
+      /**
+       * <code>optional bytes payload = 2;</code>
+       *
+       * <pre>
+       * Contains an encrypted MixPayload, and will be sent to the next node.
+       * </pre>
+       */
+      public Builder setPayload(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        payload_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes payload = 2;</code>
+       *
+       * <pre>
+       * Contains an encrypted MixPayload, and will be sent to the next node.
+       * </pre>
+       */
+      public Builder clearPayload() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        payload_ = getDefaultInstance().getPayload();
         onChanged();
         return this;
       }
@@ -489,11 +634,698 @@ public final class MixMessageProtos {
     // @@protoc_insertion_point(class_scope:movement.MixMessage)
   }
 
+  public interface MixPayloadOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:movement.MixPayload)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional bytes destination = 1;</code>
+     *
+     * <pre>
+     * (GCM) address of the next node that will receive this payload.
+     * </pre>
+     */
+    boolean hasDestination();
+    /**
+     * <code>optional bytes destination = 1;</code>
+     *
+     * <pre>
+     * (GCM) address of the next node that will receive this payload.
+     * </pre>
+     */
+    com.google.protobuf.ByteString getDestination();
+
+    /**
+     * <code>optional bytes mac = 2;</code>
+     *
+     * <pre>
+     * HMAC-SHA256 of partialPayload and padding. The padding is not included
+     * in the current payload, but it will be generated (deterministicly)
+     * before partialPayload is sent to the next node. Note that |padding| is
+     * equal to sum of |mac| and |destination|.
+     * </pre>
+     */
+    boolean hasMac();
+    /**
+     * <code>optional bytes mac = 2;</code>
+     *
+     * <pre>
+     * HMAC-SHA256 of partialPayload and padding. The padding is not included
+     * in the current payload, but it will be generated (deterministicly)
+     * before partialPayload is sent to the next node. Note that |padding| is
+     * equal to sum of |mac| and |destination|.
+     * </pre>
+     */
+    com.google.protobuf.ByteString getMac();
+
+    /**
+     * <code>optional bytes partialPayload = 3;</code>
+     *
+     * <pre>
+     * Payload for the next node.
+     * </pre>
+     */
+    boolean hasPartialPayload();
+    /**
+     * <code>optional bytes partialPayload = 3;</code>
+     *
+     * <pre>
+     * Payload for the next node.
+     * </pre>
+     */
+    com.google.protobuf.ByteString getPartialPayload();
+  }
+  /**
+   * Protobuf type {@code movement.MixPayload}
+   */
+  public static final class MixPayload extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:movement.MixPayload)
+      MixPayloadOrBuilder {
+    // Use MixPayload.newBuilder() to construct.
+    private MixPayload(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private MixPayload(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final MixPayload defaultInstance;
+    public static MixPayload getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public MixPayload getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private MixPayload(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              bitField0_ |= 0x00000001;
+              destination_ = input.readBytes();
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              mac_ = input.readBytes();
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              partialPayload_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return io.movement.MixMessageProtos.internal_static_movement_MixPayload_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return io.movement.MixMessageProtos.internal_static_movement_MixPayload_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              io.movement.MixMessageProtos.MixPayload.class, io.movement.MixMessageProtos.MixPayload.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<MixPayload> PARSER =
+        new com.google.protobuf.AbstractParser<MixPayload>() {
+      public MixPayload parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new MixPayload(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MixPayload> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int DESTINATION_FIELD_NUMBER = 1;
+    private com.google.protobuf.ByteString destination_;
+    /**
+     * <code>optional bytes destination = 1;</code>
+     *
+     * <pre>
+     * (GCM) address of the next node that will receive this payload.
+     * </pre>
+     */
+    public boolean hasDestination() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional bytes destination = 1;</code>
+     *
+     * <pre>
+     * (GCM) address of the next node that will receive this payload.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getDestination() {
+      return destination_;
+    }
+
+    public static final int MAC_FIELD_NUMBER = 2;
+    private com.google.protobuf.ByteString mac_;
+    /**
+     * <code>optional bytes mac = 2;</code>
+     *
+     * <pre>
+     * HMAC-SHA256 of partialPayload and padding. The padding is not included
+     * in the current payload, but it will be generated (deterministicly)
+     * before partialPayload is sent to the next node. Note that |padding| is
+     * equal to sum of |mac| and |destination|.
+     * </pre>
+     */
+    public boolean hasMac() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional bytes mac = 2;</code>
+     *
+     * <pre>
+     * HMAC-SHA256 of partialPayload and padding. The padding is not included
+     * in the current payload, but it will be generated (deterministicly)
+     * before partialPayload is sent to the next node. Note that |padding| is
+     * equal to sum of |mac| and |destination|.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getMac() {
+      return mac_;
+    }
+
+    public static final int PARTIALPAYLOAD_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString partialPayload_;
+    /**
+     * <code>optional bytes partialPayload = 3;</code>
+     *
+     * <pre>
+     * Payload for the next node.
+     * </pre>
+     */
+    public boolean hasPartialPayload() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional bytes partialPayload = 3;</code>
+     *
+     * <pre>
+     * Payload for the next node.
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getPartialPayload() {
+      return partialPayload_;
+    }
+
+    private void initFields() {
+      destination_ = com.google.protobuf.ByteString.EMPTY;
+      mac_ = com.google.protobuf.ByteString.EMPTY;
+      partialPayload_ = com.google.protobuf.ByteString.EMPTY;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, destination_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, mac_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, partialPayload_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, destination_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, mac_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, partialPayload_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static io.movement.MixMessageProtos.MixPayload parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static io.movement.MixMessageProtos.MixPayload parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(io.movement.MixMessageProtos.MixPayload prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code movement.MixPayload}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:movement.MixPayload)
+        io.movement.MixMessageProtos.MixPayloadOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return io.movement.MixMessageProtos.internal_static_movement_MixPayload_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return io.movement.MixMessageProtos.internal_static_movement_MixPayload_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                io.movement.MixMessageProtos.MixPayload.class, io.movement.MixMessageProtos.MixPayload.Builder.class);
+      }
+
+      // Construct using io.movement.MixMessageProtos.MixPayload.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        destination_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        mac_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        partialPayload_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return io.movement.MixMessageProtos.internal_static_movement_MixPayload_descriptor;
+      }
+
+      public io.movement.MixMessageProtos.MixPayload getDefaultInstanceForType() {
+        return io.movement.MixMessageProtos.MixPayload.getDefaultInstance();
+      }
+
+      public io.movement.MixMessageProtos.MixPayload build() {
+        io.movement.MixMessageProtos.MixPayload result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public io.movement.MixMessageProtos.MixPayload buildPartial() {
+        io.movement.MixMessageProtos.MixPayload result = new io.movement.MixMessageProtos.MixPayload(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.destination_ = destination_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.mac_ = mac_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.partialPayload_ = partialPayload_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof io.movement.MixMessageProtos.MixPayload) {
+          return mergeFrom((io.movement.MixMessageProtos.MixPayload)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(io.movement.MixMessageProtos.MixPayload other) {
+        if (other == io.movement.MixMessageProtos.MixPayload.getDefaultInstance()) return this;
+        if (other.hasDestination()) {
+          setDestination(other.getDestination());
+        }
+        if (other.hasMac()) {
+          setMac(other.getMac());
+        }
+        if (other.hasPartialPayload()) {
+          setPartialPayload(other.getPartialPayload());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        io.movement.MixMessageProtos.MixPayload parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (io.movement.MixMessageProtos.MixPayload) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private com.google.protobuf.ByteString destination_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes destination = 1;</code>
+       *
+       * <pre>
+       * (GCM) address of the next node that will receive this payload.
+       * </pre>
+       */
+      public boolean hasDestination() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional bytes destination = 1;</code>
+       *
+       * <pre>
+       * (GCM) address of the next node that will receive this payload.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getDestination() {
+        return destination_;
+      }
+      /**
+       * <code>optional bytes destination = 1;</code>
+       *
+       * <pre>
+       * (GCM) address of the next node that will receive this payload.
+       * </pre>
+       */
+      public Builder setDestination(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        destination_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes destination = 1;</code>
+       *
+       * <pre>
+       * (GCM) address of the next node that will receive this payload.
+       * </pre>
+       */
+      public Builder clearDestination() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        destination_ = getDefaultInstance().getDestination();
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString mac_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes mac = 2;</code>
+       *
+       * <pre>
+       * HMAC-SHA256 of partialPayload and padding. The padding is not included
+       * in the current payload, but it will be generated (deterministicly)
+       * before partialPayload is sent to the next node. Note that |padding| is
+       * equal to sum of |mac| and |destination|.
+       * </pre>
+       */
+      public boolean hasMac() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional bytes mac = 2;</code>
+       *
+       * <pre>
+       * HMAC-SHA256 of partialPayload and padding. The padding is not included
+       * in the current payload, but it will be generated (deterministicly)
+       * before partialPayload is sent to the next node. Note that |padding| is
+       * equal to sum of |mac| and |destination|.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getMac() {
+        return mac_;
+      }
+      /**
+       * <code>optional bytes mac = 2;</code>
+       *
+       * <pre>
+       * HMAC-SHA256 of partialPayload and padding. The padding is not included
+       * in the current payload, but it will be generated (deterministicly)
+       * before partialPayload is sent to the next node. Note that |padding| is
+       * equal to sum of |mac| and |destination|.
+       * </pre>
+       */
+      public Builder setMac(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        mac_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes mac = 2;</code>
+       *
+       * <pre>
+       * HMAC-SHA256 of partialPayload and padding. The padding is not included
+       * in the current payload, but it will be generated (deterministicly)
+       * before partialPayload is sent to the next node. Note that |padding| is
+       * equal to sum of |mac| and |destination|.
+       * </pre>
+       */
+      public Builder clearMac() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        mac_ = getDefaultInstance().getMac();
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString partialPayload_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes partialPayload = 3;</code>
+       *
+       * <pre>
+       * Payload for the next node.
+       * </pre>
+       */
+      public boolean hasPartialPayload() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bytes partialPayload = 3;</code>
+       *
+       * <pre>
+       * Payload for the next node.
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getPartialPayload() {
+        return partialPayload_;
+      }
+      /**
+       * <code>optional bytes partialPayload = 3;</code>
+       *
+       * <pre>
+       * Payload for the next node.
+       * </pre>
+       */
+      public Builder setPartialPayload(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        partialPayload_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes partialPayload = 3;</code>
+       *
+       * <pre>
+       * Payload for the next node.
+       * </pre>
+       */
+      public Builder clearPartialPayload() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        partialPayload_ = getDefaultInstance().getPartialPayload();
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:movement.MixPayload)
+    }
+
+    static {
+      defaultInstance = new MixPayload(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:movement.MixPayload)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_movement_MixMessage_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_movement_MixMessage_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_movement_MixPayload_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_movement_MixPayload_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -503,9 +1335,11 @@ public final class MixMessageProtos {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\020MixMessage.proto\022\010movement\"0\n\nMixMessa" +
-      "ge\022\021\n\tpseudonym\030\001 \001(\014\022\017\n\007message\030\002 \001(\014B\037" +
-      "\n\013io.movementB\020MixMessageProtos"
+      "\n\020MixMessage.proto\022\010movement\"@\n\nMixMessa" +
+      "ge\022\024\n\014ephemeralKey\030\001 \001(\014\022\013\n\003mac\030\003 \001(\014\022\017\n" +
+      "\007payload\030\002 \001(\014\"F\n\nMixPayload\022\023\n\013destinat" +
+      "ion\030\001 \001(\014\022\013\n\003mac\030\002 \001(\014\022\026\n\016partialPayload" +
+      "\030\003 \001(\014B\037\n\013io.movementB\020MixMessageProtos"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -524,7 +1358,13 @@ public final class MixMessageProtos {
     internal_static_movement_MixMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_movement_MixMessage_descriptor,
-        new java.lang.String[] { "Pseudonym", "Message", });
+        new java.lang.String[] { "EphemeralKey", "Mac", "Payload", });
+    internal_static_movement_MixPayload_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_movement_MixPayload_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_movement_MixPayload_descriptor,
+        new java.lang.String[] { "Destination", "Mac", "PartialPayload", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
