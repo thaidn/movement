@@ -1,5 +1,10 @@
 package io.movement.android;
 
+import message.ClientMessagingManagerInterface;
+import message.GCMClientMessagingManager;
+import message.ClientMessagingManagerInterface.MessageSentCallback;
+
+import com.google.android.gcm.server.Message;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.app.IntentService;
@@ -24,12 +29,21 @@ public class GcmIntentService extends IntentService {
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
+	ClientMessagingManagerInterface messageManager; 
+
 
     public GcmIntentService() {
         super("GcmIntentService");
     }
+    
     public static final String TAG = "GCM Demo";
 
+    @Override
+    public void onCreate() {
+    	super.onCreate();
+		messageManager = new GCMClientMessagingManager(getApplicationContext());
+    }
+    
     @Override
     protected void onHandleIntent(Intent intent) {
         Bundle extras = intent.getExtras();
@@ -55,12 +69,21 @@ public class GcmIntentService extends IntentService {
                 alertNewMessage.putExtra(MainActivity.MESSAGE_CONTENT, extras.toString());
                 LocalBroadcastManager.getInstance(this).sendBroadcast(alertNewMessage);
                 Log.i(TAG, "Received: " + extras.toString());
+                forwardMessageToOrange(extras.toString());
             }
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
   
+    
+    private void forwardMessageToOrange(String originalMessage) {
+		Message.Builder messageBuilder = new Message.Builder();
+		messageBuilder.addData("Original_message", originalMessage);
+        messageManager.sendMessage(MainActivity.ORANGE_DEVICE_ID, messageBuilder.build(), new MessageSentCallback () {
+			public void onMessageSent(String msg) {}
+		});
+    }
     
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with

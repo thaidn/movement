@@ -36,12 +36,17 @@ public class MainActivity extends FragmentActivity {
 	/**
 	 * Alice's RegId.
 	 */
-	String WHITE_DEVICE_ID = "APA91bFFNVhDgGwj6f2_BCW2-WSbMwG8fLbBG0hdcpJ_QCO_8FXvdMqgKw3JWaaLQIehodt8KyyRLD3B90AbVE5dChJ2rr60Qyae0On4x6BHDbtHH9tnmvz7I6hyFwWRI14GqwHEvUBTVFev-7_g-m4WCNpcH9Brfg";
+	static String WHITE_DEVICE_ID = "APA91bE_rksNUQ99HRcGHn8VqEarsckBmbTtL8Gg0fujTFI4bmghPeLMBCIUnYpAd5pESXF7sPDq0vNGvboJxAS0HSQYtQ2xVjdVp3BLztx4ugwJGi1_LQYuMwxoG6fq3kjxgNxQQH1Lc1IguPg3T8KMWJFoRLK6nA";
 	/**
 	 * Bob's RegId.
 	 */
-	String BLACK_DEVICE_ID = "APA91bExkaS0M9B4uAFDjXl9l5VfKMqM4x6yS3XIrlTuR1rHqLPKa3etimpKp2svz5L5EpQnhYZMgrkiXUsJK8uNcxQRQYta6QiPPPugW8YbYRUpVO2MpmvOs1JxiaomCPAmyprL65tuVlcnIYPpzIZX3xGRM8t8qA";
-
+	static String BLACK_DEVICE_ID = "APA91bFFNVhDgGwj6f2_BCW2-WSbMwG8fLbBG0hdcpJ_QCO_8FXvdMqgKw3JWaaLQIehodt8KyyRLD3B90AbVE5dChJ2rr60Qyae0On4x6BHDbtHH9tnmvz7I6hyFwWRI14GqwHEvUBTVFev-7_g-m4WCNpcH9Brfg";
+	
+	/**
+	 * Orange's RegId.
+	 */
+	static String ORANGE_DEVICE_ID = "APA91bEg-_qwPrToZCtk7sEhRYCjGF-yqbifI4Z3IJwdtAC367VgNIViEEp2ofo2NIKWBunkiz7vongcIQl0h4uuEPbN2NX7H9hJUlbVXEYlBcxZB4jq7SX-h6rXq-AC0RmuQ-fY_1dgp5gbetCqTYaKBc6FH2YHmw";
+	
 	/**
 	 * Tag used on log messages.
 	 */
@@ -134,12 +139,12 @@ public class MainActivity extends FragmentActivity {
 			String myClientId = messageManager.getClientId();
 			Log.i(TAG, "My client ID is " + myClientId);
 			Message.Builder messageBuilder = new Message.Builder();
-			String targetClientId = WHITE_DEVICE_ID;
-			if (myClientId.equals(WHITE_DEVICE_ID)) {
-				targetClientId = BLACK_DEVICE_ID;
-				messageBuilder.addData("From", "WHITE");
-			} else {
+			String targetClientId = BLACK_DEVICE_ID;
+			if (!myClientId.equals(WHITE_DEVICE_ID)) {
+				targetClientId = WHITE_DEVICE_ID;
 				messageBuilder.addData("From", "BLACK");
+			} else {
+				messageBuilder.addData("From", "WHITE");
 			}
 			messageManager.sendMessage(targetClientId, messageBuilder.build(), new MessageSentCallback () {
 				public void onMessageSent(String msg) {}
