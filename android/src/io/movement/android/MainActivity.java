@@ -3,6 +3,8 @@ package io.movement.android;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gcm.server.*;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,6 +23,8 @@ import android.widget.TextView;
 import message.ClientMessagingManagerInterface;
 import message.ClientMessagingManagerInterface.MessageSentCallback;
 import message.GCMClientMessagingManager;
+
+import io.movement.MixMessageProtos.MixMessage;
 
 /**
  * Main UI for the demo app.
@@ -57,13 +61,20 @@ public class MainActivity extends FragmentActivity {
 	ClientMessagingManagerInterface messageManager; 
 	Context context;
 	Fragment newMessageFragment;
-	String newMessage;
+	MixMessage newMessage;
 
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			newMessage = intent.getStringExtra(MESSAGE_CONTENT);
-			displayNewMessageNotification();
+			Bundle extras = intent.getExtras();
+			Log.i(TAG, extras.toString());
+			try {
+				newMessage = MixMessage.parseFrom(
+						intent.getStringExtra(MESSAGE_CONTENT).getBytes());
+				displayNewMessageNotification();
+			} catch (InvalidProtocolBufferException e) {
+				;
+			}
 		}
 	};
 
@@ -128,8 +139,7 @@ public class MainActivity extends FragmentActivity {
 	void showNewMessage() {
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.remove(newMessageFragment).commit();
-		mDisplay.append("\n\nNew message:\n" + Base64.encodeToString(
-				newMessage.getBytes(), Base64.URL_SAFE));
+		mDisplay.append("\n\nNew message:\n" + newMessage.getPayload().toStringUtf8());
 	}
 
 	// Send an upstream message.
@@ -145,7 +155,10 @@ public class MainActivity extends FragmentActivity {
 			if (!myClientId.equals(WHITE_DEVICE_ID)) {
 				targetClientId = WHITE_DEVICE_ID;
 			}
-			messageBuilder.addData("From", new String(Base64.decode(targetClientId, Base64.URL_SAFE)));
+			MixMessage mixMsg = MixMessage.newBuilder()
+				.setPayload(ByteString.copyFromUtf8("Here I go"))
+				.build();
+			messageBuilder.addData("From", new String(mixMsg.toByteArray()));
 			messageManager.sendMessage(targetClientId, messageBuilder.build(), new MessageSentCallback () {
 				public void onMessageSent(String msg) {}
 			});

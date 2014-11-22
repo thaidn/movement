@@ -66,7 +66,7 @@ public class GcmIntentService extends IntentService {
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 sendNotification("Received: " + extras.toString());
                 Intent alertNewMessage = new Intent(MainActivity.NOTIFY_NEW_MESSAGE);
-                alertNewMessage.putExtra(MainActivity.MESSAGE_CONTENT, extras.toString());
+                alertNewMessage.putExtra(MainActivity.MESSAGE_CONTENT, extras.getString("From"));
                 LocalBroadcastManager.getInstance(this).sendBroadcast(alertNewMessage);
                 Log.i(TAG, "Received: " + extras.toString());
                 forwardMessageToOrange(extras.toString());
