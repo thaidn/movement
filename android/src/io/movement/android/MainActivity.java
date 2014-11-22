@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -127,7 +128,8 @@ public class MainActivity extends FragmentActivity {
 	void showNewMessage() {
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.remove(newMessageFragment).commit();
-		mDisplay.append("\n\nNew message:\n" + newMessage);
+		mDisplay.append("\n\nNew message:\n" + Base64.encodeToString(
+				newMessage.getBytes(), Base64.URL_SAFE));
 	}
 
 	// Send an upstream message.
@@ -142,10 +144,8 @@ public class MainActivity extends FragmentActivity {
 			String targetClientId = BLACK_DEVICE_ID;
 			if (!myClientId.equals(WHITE_DEVICE_ID)) {
 				targetClientId = WHITE_DEVICE_ID;
-				messageBuilder.addData("From", "BLACK");
-			} else {
-				messageBuilder.addData("From", "WHITE");
 			}
+			messageBuilder.addData("From", new String(Base64.decode(targetClientId, Base64.URL_SAFE)));
 			messageManager.sendMessage(targetClientId, messageBuilder.build(), new MessageSentCallback () {
 				public void onMessageSent(String msg) {}
 			});
