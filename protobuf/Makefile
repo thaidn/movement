@@ -1,2 +1,2 @@
 all:
-	protoc --java_out=../android/src/ MixMessage.proto
+	protoc --java_out=../android/src/main/java MixMessage.proto

@@ -1,5 +1,7 @@
-# Tools and local files
-local/
+# Experimental codes
+experiment/
+
+# Local tools
 tools/
 
 # Built application files
@@ -20,6 +22,9 @@ gen/
 .classpath
 .project
 .settings
+
+# IDEA files
+.idea
 
 # Gradle files
 .gradle/
