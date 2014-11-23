@@ -1,4 +1,4 @@
-package io.movement.android;
+package io.movement;
 
 import android.os.Bundle;
 import android.app.Fragment;

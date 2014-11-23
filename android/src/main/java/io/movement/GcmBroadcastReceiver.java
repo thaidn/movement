@@ -1,4 +1,4 @@
-package io.movement.android;
+package io.movement;
 
 import android.app.Activity;
 import android.content.ComponentName;

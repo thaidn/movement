@@ -1,4 +1,4 @@
-package message;
+package io.movement.message;
 
 import com.google.android.gcm.server.Message;
 

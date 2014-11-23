@@ -1,9 +1,10 @@
-package io.movement.android;
+package io.movement;
 
-import io.movement.MixMessageProtos.MixMessage;
-import message.ClientMessagingManagerInterface;
-import message.ClientMessagingManagerInterface.MessageSentCallback;
-import message.GCMClientMessagingManager;
+import io.movement.message.ClientMessagingManagerInterface;
+import io.movement.message.ClientMessagingManagerInterface.MessageSentCallback;
+import io.movement.message.GCMClientMessagingManager;
+import io.movement.message.MixMessageProtos.MixMessage;
+
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;

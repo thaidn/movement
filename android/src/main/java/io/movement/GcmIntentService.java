@@ -1,12 +1,13 @@
-package io.movement.android;
+package io.movement;
 
 import java.io.FileNotFoundException;
 
-import message.ClientMessagingManagerInterface;
-import message.ClientMessagingManagerInterface.MessageSentCallback;
-import message.GCMClientMessagingManager;
-import message.MixMessageStorageManagerImpl;
-import message.MixMessageStorageManagerInterface;
+import io.movement.message.ClientMessagingManagerInterface;
+import io.movement.message.ClientMessagingManagerInterface.MessageSentCallback;
+import io.movement.message.GCMClientMessagingManager;
+import io.movement.message.MixMessageStorageManagerImpl;
+import io.movement.message.MixMessageStorageManagerInterface;
+
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

@@ -1,6 +1,6 @@
 package movement;
 
-option java_package = "io.movement";
+option java_package = "io.movement.message";
 option java_outer_classname = "MixMessageProtos";
 
 // When a node receives a MixMessage, it uses the ephemeralKey (and its
