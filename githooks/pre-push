@@ -1,6 +1,8 @@
 #!/bin/bash
 
-CMD="../../gradlew build" # Command that runs your tests
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+CMD="${DIR}../../gradlew build" # Command that runs your tests
 protected_branch='master'
 
 # Check if we actually have commits to push
