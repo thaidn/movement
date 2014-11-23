@@ -34,7 +34,6 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	private GoogleCloudMessaging gcm;
 
 	public GCMClientMessagingManager(Context applicationContext) {
-		// TODO: Need to make sure that this preference used PRIVATE_MODE. 
 		this.sharedPreferences = applicationContext.getSharedPreferences(APP_ID_FILE, Context.MODE_PRIVATE);
 		this.gcm = GoogleCloudMessaging.getInstance(applicationContext);
 		this.currentAppVersion = getAppVersion(applicationContext);
