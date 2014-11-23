@@ -1,6 +1,6 @@
 package io.movement.message;
 
-import io.movement.MixMessageProtos.MixMessage;
+import io.movement.message.MixMessageProtos.MixMessage;
 
 import java.util.Map;
 
