@@ -1,11 +1,11 @@
 package io.movement.android;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gcm.server.*;
-import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
-
+import io.movement.MixMessageProtos.MixMessage;
+import message.ClientMessagingManagerInterface;
+import message.ClientMessagingManagerInterface.MessageSentCallback;
+import message.GCMClientMessagingManager;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,11 +19,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import message.ClientMessagingManagerInterface;
-import message.ClientMessagingManagerInterface.MessageSentCallback;
-import message.GCMClientMessagingManager;
-
-import io.movement.MixMessageProtos.MixMessage;
+import com.google.android.gcm.server.Message;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * Main UI for the demo app.
@@ -45,19 +45,19 @@ public class MainActivity extends FragmentActivity {
 	 * Bob's RegId.
 	 */
 	static String BLACK_DEVICE_ID = "APA91bFFNVhDgGwj6f2_BCW2-WSbMwG8fLbBG0hdcpJ_QCO_8FXvdMqgKw3JWaaLQIehodt8KyyRLD3B90AbVE5dChJ2rr60Qyae0On4x6BHDbtHH9tnmvz7I6hyFwWRI14GqwHEvUBTVFev-7_g-m4WCNpcH9Brfg";
-	
+
 	/**
 	 * Orange's RegId.
 	 */
 	static String ORANGE_DEVICE_ID = "APA91bEg-_qwPrToZCtk7sEhRYCjGF-yqbifI4Z3IJwdtAC367VgNIViEEp2ofo2NIKWBunkiz7vongcIQl0h4uuEPbN2NX7H9hJUlbVXEYlBcxZB4jq7SX-h6rXq-AC0RmuQ-fY_1dgp5gbetCqTYaKBc6FH2YHmw";
-	
+
 	/**
 	 * Tag used on log messages.
 	 */
 	static final String TAG = "GCM Demo";
 
 	TextView mDisplay;
-	ClientMessagingManagerInterface messageManager; 
+	ClientMessagingManagerInterface messageManager;
 	Context context;
 	Fragment newMessageFragment;
 	MixMessage newMessage;
@@ -68,8 +68,8 @@ public class MainActivity extends FragmentActivity {
 			Bundle extras = intent.getExtras();
 			Log.i(TAG, extras.toString());
 			try {
-				newMessage = MixMessage.parseFrom(
-						intent.getStringExtra(MESSAGE_CONTENT).getBytes());
+				newMessage = MixMessage.parseFrom(intent.getStringExtra(
+						MESSAGE_CONTENT).getBytes());
 				displayNewMessageNotification();
 			} catch (InvalidProtocolBufferException e) {
 				;
@@ -138,7 +138,8 @@ public class MainActivity extends FragmentActivity {
 	void showNewMessage() {
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.remove(newMessageFragment).commit();
-		mDisplay.append("\n\nNew message:\n" + newMessage.getPayload().toStringUtf8());
+		mDisplay.append("\n\nNew message:\n"
+				+ newMessage.getPayload().toStringUtf8());
 	}
 
 	// Send an upstream message.
@@ -173,7 +174,6 @@ public class MainActivity extends FragmentActivity {
 				.getInstance(this);
 		bManager.unregisterReceiver(receiver);
 	}
-
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
