@@ -2,13 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
   compileSdkVersion 21
-    buildToolsVersion "22.1.0"
+  buildToolsVersion "21.1.1"
 
-    defaultConfig {
-      applicationId "io.movement.android"
-        minSdkVersion 11
-        targetSdkVersion 21
-    }
+
+  defaultConfig {
+      applicationId "io.movement"
+      minSdkVersion 11
+      targetSdkVersion 21
+   }
 
   buildTypes {
     release {
@@ -16,6 +17,7 @@ android {
         proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
     }
   }
+
   // This is important, it will run lint checks but won't abort build
   lintOptions {
     abortOnError false
