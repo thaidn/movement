@@ -125,4 +125,15 @@ public class MixMessageStorageManagerImpl implements
 		database.delete(MessageDatabaseHelper.TABLE_MESSAGES,
 				MessageDatabaseHelper.COLUMN_ID + " = " + messageId, null);
 	}
+
+    @Override
+    public boolean hasMessages() {
+        Cursor cur = database.rawQuery(
+                "SELECT COUNT(*) FROM " + MessageDatabaseHelper.TABLE_MESSAGES, null);
+        if (cur == null) {
+            return false;
+        }
+        cur.moveToFirst();
+        return cur.getInt(0) != 0;
+    }
 }

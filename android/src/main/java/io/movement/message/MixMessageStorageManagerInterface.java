@@ -33,6 +33,12 @@ public interface MixMessageStorageManagerInterface {
 	 */
 	void deleteMessage(Long messageId);
 
+    /**
+     *
+     * @return True if there are messages in the storage. False otherwise.
+     */
+    boolean hasMessages();
+
 	/**
 	 * 
 	 * @return a map from messageIds -> messages
