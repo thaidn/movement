@@ -7,12 +7,16 @@ import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.Result;
 import com.google.android.gcm.server.Sender;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
+
+import io.movement.backend.registration.Registration;
 
 public final class GCMClientMessagingManager implements ClientMessagingManagerInterface {
 	/**
@@ -62,7 +66,7 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 					// You should send the registration ID to your server over
 					// HTTP, so it can use GCM/HTTP or CCS to send messages to 
 					// your app.
-					sendRegistrationIdToBackend();
+					sendRegistrationIdToBackend(clientId);
 
 					// For this demo: we don't need to send it because the
 					// device will send
@@ -105,8 +109,18 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	 * since the device sends upstream messages to a server that echoes back the
 	 * message using the 'from' address in the message.
 	 */
-	private void sendRegistrationIdToBackend() {
-		// Your implementation here.
+	private void sendRegistrationIdToBackend(String regId) {
+        Registration regService = new Registration.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null).build();
+        // You should send the registration ID to your server over HTTP,
+        // so it can use GCM/HTTP or CCS to send messages to your app.
+        // The request to your server should be authenticated if your app
+        // is using accounts.
+        try {
+            regService.register(regId).execute();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 	}
 
 	@Override

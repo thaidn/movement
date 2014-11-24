@@ -41,7 +41,7 @@ public class MainActivity extends FragmentActivity {
 	/**
 	 * Alice's RegId.
 	 */
-	static String WHITE_DEVICE_ID = "APA91bE_rksNUQ99HRcGHn8VqEarsckBmbTtL8Gg0fujTFI4bmghPeLMBCIUnYpAd5pESXF7sPDq0vNGvboJxAS0HSQYtQ2xVjdVp3BLztx4ugwJGi1_LQYuMwxoG6fq3kjxgNxQQH1Lc1IguPg3T8KMWJFoRLK6nA";
+	static String WHITE_DEVICE_ID = "APA91bFbuUarZbgACx7oMMKQO0Ony7_dxIZc7S5-BVfOZjF4wo-fF1mht6YAm8_wsAtFOpPxm_rS3_AQCX6zoYmvMsnb4dJ2gZxjVOi3o1l9ICLD8X4Sf6cmqYQyi6l3RR2zvdVz1g3gWhf5aAuROHWRiAhWha-O8A";
 	/**
 	 * Bob's RegId.
 	 */
@@ -152,7 +152,7 @@ public class MainActivity extends FragmentActivity {
 			String myClientId = messageManager.getClientId();
 			Log.i(TAG, "My client ID is " + myClientId);
 			Message.Builder messageBuilder = new Message.Builder();
-			String targetClientId = BLACK_DEVICE_ID;
+			String targetClientId = WHITE_DEVICE_ID;
 			if (!myClientId.equals(WHITE_DEVICE_ID)) {
 				targetClientId = WHITE_DEVICE_ID;
 			}
