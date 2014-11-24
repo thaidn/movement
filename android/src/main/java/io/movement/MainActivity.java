@@ -1,11 +1,13 @@
 package io.movement;
+import java.util.Map;
 
 import io.movement.message.ClientMessagingManagerInterface;
 import io.movement.message.ClientMessagingManagerInterface.MessageSentCallback;
 import io.movement.message.GCMClientMessagingManager;
 import io.movement.message.MixMessageProtos.MixMessage;
+import io.movement.message.MixMessageStorageManagerImpl;
+import io.movement.message.MixMessageStorageManagerInterface;
 
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,8 +16,6 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -24,7 +24,8 @@ import com.google.android.gcm.server.Message;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.io.FileNotFoundException;
 
 /**
  * Main UI for the demo app.
@@ -41,11 +42,12 @@ public class MainActivity extends FragmentActivity {
 	/**
 	 * Alice's RegId.
 	 */
-	static String WHITE_DEVICE_ID = "APA91bFbuUarZbgACx7oMMKQO0Ony7_dxIZc7S5-BVfOZjF4wo-fF1mht6YAm8_wsAtFOpPxm_rS3_AQCX6zoYmvMsnb4dJ2gZxjVOi3o1l9ICLD8X4Sf6cmqYQyi6l3RR2zvdVz1g3gWhf5aAuROHWRiAhWha-O8A";
-	/**
+	static String WHITE_DEVICE_ID = "APA91bFqdTtlRPbE8QfbJAV9PUFN9gv0HbkidaZeXyldcAFxtq6BBhyTErnDJSulMbzzPUyQLimHT5ZKg0-jM_A-4_0qnx950kcg_Yz2f1kdW6zMA37wVIQaGmuMYgfVq2HD-yJra3UdwG49roOziERmx6xpSOj9wg";
+
+    /**
 	 * Bob's RegId.
 	 */
-	static String BLACK_DEVICE_ID = "APA91bFFNVhDgGwj6f2_BCW2-WSbMwG8fLbBG0hdcpJ_QCO_8FXvdMqgKw3JWaaLQIehodt8KyyRLD3B90AbVE5dChJ2rr60Qyae0On4x6BHDbtHH9tnmvz7I6hyFwWRI14GqwHEvUBTVFev-7_g-m4WCNpcH9Brfg";
+	static String BLACK_DEVICE_ID = "APA91bGmAXPyOnp0lz7t3d2dTJ4WhF1JVI0Ybijc9mezyULeUhTvowIc-jn_XDQt2jHpPAQG85RZr3Jlv4pK0hE6hgwPB876Wf4n75HeP-3OLChZqLnca0Gar00KqfuO9lyWx11wknQ8MewJWsIVuMxHfuyStD18vQ";
 
 	/**
 	 * Orange's RegId.
@@ -55,26 +57,20 @@ public class MainActivity extends FragmentActivity {
 	/**
 	 * Tag used on log messages.
 	 */
-	static final String TAG = "GCM Demo";
+	static final String TAG = "Movement MainActivity";
 
 	TextView mDisplay;
 	ClientMessagingManagerInterface messageManager;
 	Context context;
-	Fragment newMessageFragment;
-	MixMessage newMessage;
+    MessageNotificationFragment newMessageFragment;
+    MixMessageStorageManagerInterface messageStorageManager;
 
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Bundle extras = intent.getExtras();
 			Log.i(TAG, extras.toString());
-			try {
-				newMessage = MixMessage.parseFrom(intent.getStringExtra(
-						MESSAGE_CONTENT).getBytes());
-				displayNewMessageNotification();
-			} catch (InvalidProtocolBufferException e) {
-				;
-			}
+			createNewNotificationFragmentIfNotExistAlready();
 		}
 	};
 
@@ -92,8 +88,14 @@ public class MainActivity extends FragmentActivity {
 		} else {
 			Log.i(TAG, "No valid Google Play Services APK found.");
 		}
-
-		// Add a broadcast receive that displays new message notification.
+        // Init messageStorageManager
+        try {
+            messageStorageManager = new MixMessageStorageManagerImpl(getApplicationContext());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new Error("Fail to initialize message storage manager");
+        }
+        // Add a broadcast receive that displays new message notification.
 		LocalBroadcastManager bManager = LocalBroadcastManager
 				.getInstance(this);
 		IntentFilter filter = new IntentFilter();
@@ -106,9 +108,19 @@ public class MainActivity extends FragmentActivity {
 		super.onResume();
 		// Check device for Play Services APK.
 		checkPlayServices();
-	}
+        messageStorageManager.open();
+        if (messageStorageManager.hasMessages()) {
+            createNewNotificationFragmentIfNotExistAlready();
+        }
+    }
 
-	/**
+    @Override
+    protected void onPause() {
+        super.onPause();
+        messageStorageManager.close();
+    }
+
+    /**
 	 * Check the device to make sure it has the Google Play Services APK. If it
 	 * doesn't, display a dialog that allows users to download the APK from the
 	 * Google Play Store or enable it in the device's system settings.
@@ -129,9 +141,12 @@ public class MainActivity extends FragmentActivity {
 		return true;
 	}
 
-	private void displayNewMessageNotification() {
-		newMessageFragment = new MessageNotificationFragment();
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+	private void createNewNotificationFragmentIfNotExistAlready() {
+        if (newMessageFragment != null) {
+            return;
+        }
+        newMessageFragment = new MessageNotificationFragment();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.add(R.id.main_layout, newMessageFragment);
 		ft.commit();
 	}
@@ -139,8 +154,15 @@ public class MainActivity extends FragmentActivity {
 	void showNewMessage() {
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
 		ft.remove(newMessageFragment).commit();
-		mDisplay.append("\n\nNew message:\n"
-				+ newMessage.getPayload().toStringUtf8());
+        newMessageFragment = null;
+        Map<Long, MixMessage> messages = messageStorageManager.loadAllMessages();
+		mDisplay.append("\n\nNew message:\n");
+        for (Map.Entry<Long, MixMessage> entry : messages.entrySet()) {
+            Long messageId = entry.getKey();
+            MixMessage message = entry.getValue();
+            mDisplay.append(message.getPayload().toStringUtf8() + "\n");
+            messageStorageManager.deleteMessage(messageId);
+        }
 	}
 
 	// Send an upstream message.
@@ -159,7 +181,7 @@ public class MainActivity extends FragmentActivity {
 			MixMessage mixMsg = MixMessage.newBuilder()
 				.setPayload(ByteString.copyFromUtf8("Here I go"))
 				.build();
-			messageBuilder.addData("From", mixMsg.toString());
+            messageBuilder.addData("From", new String(mixMsg.toByteArray()));
 			messageManager.sendMessage(targetClientId, messageBuilder.build(), new MessageSentCallback () {
 				public void onMessageSent(String msg) {}
 			});

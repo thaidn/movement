@@ -42,7 +42,10 @@
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+<<<<<<< HEAD
 
+=======
+>>>>>>> 954379d191cb7e216df9fa43f77777ad1b2589a6
                 <category android:name="io.movement" />
             </intent-filter>
         </receiver>

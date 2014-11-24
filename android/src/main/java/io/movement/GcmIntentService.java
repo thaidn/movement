@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import io.movement.message.ClientMessagingManagerInterface;
 import io.movement.message.ClientMessagingManagerInterface.MessageSentCallback;
 import io.movement.message.GCMClientMessagingManager;
+import io.movement.message.MixMessageProtos;
 import io.movement.message.MixMessageStorageManagerImpl;
 import io.movement.message.MixMessageStorageManagerInterface;
 
@@ -33,13 +34,13 @@ public class GcmIntentService extends IntentService {
 	private NotificationManager mNotificationManager;
 	NotificationCompat.Builder builder;
 	ClientMessagingManagerInterface messageManager;
-	MixMessageStorageManagerInterface messageStorageManager;
+	MixMessageStorageManagerImpl messageStorageManager;
 
 	public GcmIntentService() {
 		super("GcmIntentService");
 	}
 
-	public static final String TAG = "GCM Demo";
+	public static final String TAG = "GCMIntentService";
 
 	@Override
 	public void onCreate() {
@@ -48,12 +49,21 @@ public class GcmIntentService extends IntentService {
 		try {
 			messageStorageManager = new MixMessageStorageManagerImpl(
 					getApplicationContext());
+            messageStorageManager.open();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			throw new Error(
 					"Cannot intialize message storage manager instance.");
 		}
 	}
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (messageStorageManager != null) {
+            messageStorageManager.close();
+        }
+    }
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
@@ -80,20 +90,23 @@ public class GcmIntentService extends IntentService {
 				// If it's a regular GCM message, do some work.
 			} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE
 					.equals(messageType)) {
-				sendNotification("Received: " + extras.toString());
-				Intent alertNewMessage = new Intent(
-						MainActivity.NOTIFY_NEW_MESSAGE);
-				alertNewMessage.putExtra(MainActivity.MESSAGE_CONTENT,
-						extras.getString("From"));
-				LocalBroadcastManager.getInstance(this).sendBroadcast(
-						alertNewMessage);
-				Log.i(TAG, "Received: " + extras.toString());
-				forwardMessageToOrange(extras.toString());
+                handleNewMessage(extras.getString("From"));
 			}
 		}
 		// Release the wake lock provided by the WakefulBroadcastReceiver.
 		GcmBroadcastReceiver.completeWakefulIntent(intent);
 	}
+
+    private void handleNewMessage(String msg) {
+        sendNotification("Received: " + msg);
+        messageStorageManager.addStringMessage(msg);
+        Intent alertNewMessage = new Intent(MainActivity.NOTIFY_NEW_MESSAGE);
+        alertNewMessage.putExtra(MainActivity.MESSAGE_CONTENT, msg);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+                alertNewMessage);
+        Log.i(TAG, "Received: " + msg);
+        //forwardMessageToOrange(m);
+    }
 
 	private void forwardMessageToOrange(String originalMessage) {
 		Message.Builder messageBuilder = new Message.Builder();
