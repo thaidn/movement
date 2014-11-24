@@ -32,25 +32,25 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	private static final String PROPERTY_APP_VERSION = "appVersion";
 	public static final String PROPERTY_REG_ID = "registration_id";
 	public static final String APP_ID_FILE  = "gcm_app_id_file";
-	private String clientId;
+	private String regId;
 	private SharedPreferences sharedPreferences;
 	private int currentAppVersion;
 	private GoogleCloudMessaging gcm;
 
 	public GCMClientMessagingManager(Context applicationContext) {
-		this.sharedPreferences = applicationContext.getSharedPreferences(APP_ID_FILE, Context.MODE_PRIVATE);
+		this.sharedPreferences = applicationContext.getSharedPreferences(
+                APP_ID_FILE, Context.MODE_PRIVATE);
 		this.gcm = GoogleCloudMessaging.getInstance(applicationContext);
 		this.currentAppVersion = getAppVersion(applicationContext);
-		this.clientId = "";
-		readClientIdFromPreferenceAndReregisterIfNeeded();
+		readRegIdFromStorageOrMaybeRegister();
 	}
 
 	@Override
-	public String getClientId() {
-		if (clientId == null || clientId.isEmpty()) {
-			readClientIdFromPreferenceAndReregisterIfNeeded();
+	public String getRegId() {
+		if (regId == null || regId.isEmpty()) {
+            readRegIdFromStorageOrMaybeRegister();
 		}
-		return clientId;
+		return regId;
 	}
 
 	@Override
@@ -60,13 +60,13 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 			protected String doInBackground(Void... params) {
 				String msg = "";
 				try {
-					clientId = gcm.register(SENDER_ID);
-					msg = "Device registered, registration ID=" + clientId;
+					regId = gcm.register(SENDER_ID);
+					msg = "Device registered, registration ID=" + regId;
 
 					// You should send the registration ID to your server over
 					// HTTP, so it can use GCM/HTTP or CCS to send messages to 
 					// your app.
-					sendRegistrationIdToBackend(clientId);
+					sendRegistrationIdToBackend(regId);
 
 					// For this demo: we don't need to send it because the
 					// device will send
@@ -75,7 +75,7 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 					// 'from' address in the message.
 
 					// Persist the regID - no need to register again.
-					storeRegistrationId(clientId);
+					storeRegistrationId(regId);
 				} catch (IOException ex) {
 					msg = "Error :" + ex.getMessage();
 					// If there is an error, don't just keep trying to register.
@@ -91,14 +91,14 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	private void storeRegistrationId(String regId) {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putString(PROPERTY_REG_ID, regId);
-		editor.putInt(PROPERTY_APP_VERSION,currentAppVersion);
+		editor.putInt(PROPERTY_APP_VERSION, currentAppVersion);
 		editor.commit();
 	}
-	
-	private void readClientIdFromPreferenceAndReregisterIfNeeded() {
+
+	private void readRegIdFromStorageOrMaybeRegister() {
 		int registeredVersion = sharedPreferences.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
-		clientId = sharedPreferences.getString(PROPERTY_REG_ID, "");
-		if (registeredVersion != currentAppVersion || "".equals(clientId)) {
+		regId = sharedPreferences.getString(PROPERTY_REG_ID, "");
+		if (registeredVersion != currentAppVersion || "".equals(regId)) {
 			registerInBackground();
 		}
 	}
@@ -110,12 +110,9 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	 * message using the 'from' address in the message.
 	 */
 	private void sendRegistrationIdToBackend(String regId) {
-        Registration regService = new Registration.Builder(AndroidHttp.newCompatibleTransport(),
-                new AndroidJsonFactory(), null).build();
-        // You should send the registration ID to your server over HTTP,
-        // so it can use GCM/HTTP or CCS to send messages to your app.
-        // The request to your server should be authenticated if your app
-        // is using accounts.
+        Registration regService = new Registration.Builder(
+                AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
+                .build();
         try {
             regService.register(regId).execute();
         } catch (IOException ex) {
@@ -124,14 +121,15 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	}
 
 	@Override
-	public void sendMessage(final String targetClientId, final Message message, final MessageSentCallback callback) {
+	public void sendMessage(
+            final String targetRegId, final Message message, final MessageSentCallback callback) {
 		new AsyncTask<Void, Void, String>() {
 			@Override
 			protected String doInBackground(Void... params) {
 				String msg = "";
 				try {
 					Sender sender = new Sender(API_KEY);
-					Result result = sender.send(message, targetClientId, 5);
+					Result result = sender.send(message, targetRegId, 5);
 					if (result.getMessageId() != null) {
 						String canonicalRegId = result
 								.getCanonicalRegistrationId();

@@ -10,23 +10,20 @@ public interface ClientMessagingManagerInterface {
 	}
 	
 	/**
-	 * Gets the current client ID for application if there
-	 * is one.
-	 * <p>
+	 * Gets the current registration ID for application if there is one.
 	 * If result is empty, the app needs to register.
 	 * 
 	 * @return registration ID, or empty string if there is no existing
 	 *         registration ID.
 	 */
-	public String getClientId();
+	public String getRegId();
 	
 	/**
 	 * Registers the application asynchronously.
-	 * <p>
 	 * Stores the registration ID and the app versionCode in the application's
 	 * shared preferences.
 	 */
 	void registerInBackground();
 	
-	void sendMessage(String targetClientId, Message message, MessageSentCallback callback);
+	void sendMessage(String targetRegId, Message message, MessageSentCallback callback);
 }

@@ -1,5 +1,11 @@
 package io.movement;
+
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+
+import io.movement.backend.registration.Registration;
+import io.movement.backend.registration.model.RegistrationRecord;
 
 import io.movement.message.ClientMessagingManagerInterface;
 import io.movement.message.ClientMessagingManagerInterface.MessageSentCallback;
@@ -13,6 +19,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
@@ -23,6 +30,8 @@ import android.widget.TextView;
 import com.google.android.gcm.server.Message;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.protobuf.ByteString;
 
 import java.io.FileNotFoundException;
@@ -32,10 +41,7 @@ import java.io.FileNotFoundException;
  */
 public class MainActivity extends FragmentActivity {
 
-	public static final String EXTRA_MESSAGE = "message";
-	public static final String PROPERTY_REG_ID = "registration_id";
 	private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-
 	static final String NOTIFY_NEW_MESSAGE = "notify-new-message";
 	static final String MESSAGE_CONTENT = "message-content";
 
@@ -70,30 +76,24 @@ public class MainActivity extends FragmentActivity {
 		public void onReceive(Context context, Intent intent) {
 			Bundle extras = intent.getExtras();
 			Log.i(TAG, extras.toString());
-			createNewNotificationFragmentIfNotExistAlready();
+			maybeCreateNotificationFragment();
 		}
 	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_main);
 		mDisplay = (TextView) findViewById(R.id.display);
 		context = getApplicationContext();
-		// Check device for Play Services APK. If check succeeds, proceed with
-		// GCM registration.
-		if (checkPlayServices()) {
-			messageManager = new GCMClientMessagingManager(context);
-		} else {
-			Log.i(TAG, "No valid Google Play Services APK found.");
-		}
-        // Init messageStorageManager
+		checkPlayServices();
+
+		messageManager = new GCMClientMessagingManager(context);
         try {
             messageStorageManager = new MixMessageStorageManagerImpl(getApplicationContext());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            throw new Error("Fail to initialize message storage manager");
+            finish();
         }
         // Add a broadcast receive that displays new message notification.
 		LocalBroadcastManager bManager = LocalBroadcastManager
@@ -106,11 +106,9 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		// Check device for Play Services APK.
-		checkPlayServices();
         messageStorageManager.open();
         if (messageStorageManager.hasMessages()) {
-            createNewNotificationFragmentIfNotExistAlready();
+            maybeCreateNotificationFragment();
         }
     }
 
@@ -125,7 +123,7 @@ public class MainActivity extends FragmentActivity {
 	 * doesn't, display a dialog that allows users to download the APK from the
 	 * Google Play Store or enable it in the device's system settings.
 	 */
-	private boolean checkPlayServices() {
+	private void checkPlayServices() {
 		int resultCode = GooglePlayServicesUtil
 				.isGooglePlayServicesAvailable(this);
 		if (resultCode != ConnectionResult.SUCCESS) {
@@ -136,12 +134,10 @@ public class MainActivity extends FragmentActivity {
 				Log.i(TAG, "This device is not supported.");
 				finish();
 			}
-			return false;
 		}
-		return true;
 	}
 
-	private void createNewNotificationFragmentIfNotExistAlready() {
+	private void maybeCreateNotificationFragment() {
         if (newMessageFragment != null) {
             return;
         }
@@ -156,35 +152,27 @@ public class MainActivity extends FragmentActivity {
 		ft.remove(newMessageFragment).commit();
         newMessageFragment = null;
         Map<Long, MixMessage> messages = messageStorageManager.loadAllMessages();
-		mDisplay.append("\n\nNew message:\n");
         for (Map.Entry<Long, MixMessage> entry : messages.entrySet()) {
             Long messageId = entry.getKey();
             MixMessage message = entry.getValue();
-            mDisplay.append(message.getPayload().toStringUtf8() + "\n");
+            mDisplay.append(message.getPayload().toStringUtf8());
             messageStorageManager.deleteMessage(messageId);
         }
 	}
 
 	// Send an upstream message.
 	public void onClick(final View view) {
-
 		if (view == findViewById(R.id.ping)) {
-			while (messageManager.getClientId().equals("")) {
-			}
-			String myClientId = messageManager.getClientId();
-			Log.i(TAG, "My client ID is " + myClientId);
-			Message.Builder messageBuilder = new Message.Builder();
-			String targetClientId = WHITE_DEVICE_ID;
-			if (!myClientId.equals(WHITE_DEVICE_ID)) {
-				targetClientId = WHITE_DEVICE_ID;
-			}
-			MixMessage mixMsg = MixMessage.newBuilder()
-				.setPayload(ByteString.copyFromUtf8("Here I go"))
-				.build();
-            messageBuilder.addData("From", new String(mixMsg.toByteArray()));
-			messageManager.sendMessage(targetClientId, messageBuilder.build(), new MessageSentCallback () {
-				public void onMessageSent(String msg) {}
-			});
+            MixMessage mixMsg = MixMessage.newBuilder()
+                .setPayload(ByteString.copyFromUtf8("Here I go"))
+                .build();
+            Message message = new Message.Builder()
+                .addData("From", new String(mixMsg.toByteArray()))
+                .build();
+            Log.i(TAG, "Ping " + BLACK_DEVICE_ID);
+            messageManager.sendMessage(BLACK_DEVICE_ID, message, new MessageSentCallback () {
+                public void onMessageSent(String msg) {}
+            });
 		} else if (view == findViewById(R.id.clear)) {
 			mDisplay.setText("");
 		}

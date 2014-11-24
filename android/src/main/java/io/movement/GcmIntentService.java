@@ -52,8 +52,7 @@ public class GcmIntentService extends IntentService {
             messageStorageManager.open();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			throw new Error(
-					"Cannot intialize message storage manager instance.");
+			throw new Error("Database file not found");
 		}
 	}
 
@@ -80,16 +79,13 @@ public class GcmIntentService extends IntentService {
 			 * ignore any message types you're not interested in, or that you
 			 * don't recognize.
 			 */
-			if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR
-					.equals(messageType)) {
+			if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
 				sendNotification("Send error: " + extras.toString());
-			} else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED
-					.equals(messageType)) {
+			} else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
 				sendNotification("Deleted messages on server: "
 						+ extras.toString());
 				// If it's a regular GCM message, do some work.
-			} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE
-					.equals(messageType)) {
+			} else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 handleNewMessage(extras.getString("From"));
 			}
 		}
@@ -107,16 +103,6 @@ public class GcmIntentService extends IntentService {
         Log.i(TAG, "Received: " + msg);
         //forwardMessageToOrange(m);
     }
-
-	private void forwardMessageToOrange(String originalMessage) {
-		Message.Builder messageBuilder = new Message.Builder();
-		messageBuilder.addData("Original_message", originalMessage);
-		messageManager.sendMessage(MainActivity.ORANGE_DEVICE_ID,
-				messageBuilder.build(), new MessageSentCallback() {
-					public void onMessageSent(String msg) {
-					}
-				});
-	}
 
 	// Put the message into a notification and post it.
 	// This is just one simple example of what you might choose to do with
