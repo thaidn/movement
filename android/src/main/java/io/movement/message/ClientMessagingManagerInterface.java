@@ -25,5 +25,5 @@ public interface ClientMessagingManagerInterface {
 	 */
 	void registerInBackground();
 	
-	void sendMessage(String targetRegId, Message message, MessageSentCallback callback);
+	void sendMessage(String message, MessageSentCallback callback);
 }

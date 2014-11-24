@@ -1,6 +1,7 @@
 package io.movement.message;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.google.android.gcm.server.Constants;
 import com.google.android.gcm.server.Message;
@@ -9,14 +10,18 @@ import com.google.android.gcm.server.Sender;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.protobuf.ByteString;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import io.movement.backend.registration.Registration;
+import io.movement.backend.registration.model.RegistrationRecord;
+
 
 public final class GCMClientMessagingManager implements ClientMessagingManagerInterface {
 	/**
@@ -32,18 +37,25 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	private static final String PROPERTY_APP_VERSION = "appVersion";
 	public static final String PROPERTY_REG_ID = "registration_id";
 	public static final String APP_ID_FILE  = "gcm_app_id_file";
-	private String regId;
+    static final String TAG = "Movement GCMClientMessagingManager";
+    private String regId;
 	private SharedPreferences sharedPreferences;
 	private int currentAppVersion;
 	private GoogleCloudMessaging gcm;
+    private Registration regService;
+    private Sender sender;
 
 	public GCMClientMessagingManager(Context applicationContext) {
 		this.sharedPreferences = applicationContext.getSharedPreferences(
                 APP_ID_FILE, Context.MODE_PRIVATE);
 		this.gcm = GoogleCloudMessaging.getInstance(applicationContext);
 		this.currentAppVersion = getAppVersion(applicationContext);
-		readRegIdFromStorageOrMaybeRegister();
-	}
+        this.regService = new Registration.Builder(
+                AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
+                .build();
+        this.sender = new Sender(API_KEY);
+        readRegIdFromStorageOrMaybeRegister();
+    }
 
 	@Override
 	public String getRegId() {
@@ -110,9 +122,6 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	 * message using the 'from' address in the message.
 	 */
 	private void sendRegistrationIdToBackend(String regId) {
-        Registration regService = new Registration.Builder(
-                AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
-                .build();
         try {
             regService.register(regId).execute();
         } catch (IOException ex) {
@@ -121,30 +130,41 @@ public final class GCMClientMessagingManager implements ClientMessagingManagerIn
 	}
 
 	@Override
-	public void sendMessage(
-            final String targetRegId, final Message message, final MessageSentCallback callback) {
-		new AsyncTask<Void, Void, String>() {
+	public void sendMessage(String msg, final MessageSentCallback callback) {
+        MixMessageProtos.MixMessage mixMsg = MixMessageProtos.MixMessage.newBuilder()
+                .setPayload(ByteString.copyFromUtf8(msg))
+                .build();
+        final Message message = new Message.Builder()
+                .addData("From", new String(mixMsg.toByteArray()))
+                .build();
+        new AsyncTask<Void, Void, String>() {
 			@Override
 			protected String doInBackground(Void... params) {
 				String msg = "";
 				try {
-					Sender sender = new Sender(API_KEY);
-					Result result = sender.send(message, targetRegId, 5);
-					if (result.getMessageId() != null) {
-						String canonicalRegId = result
-								.getCanonicalRegistrationId();
-						if (canonicalRegId != null) {
-							// same device has more than on registration ID:
-							// update database
-						}
-					} else {
-						String error = result.getErrorCodeName();
-						if (error.equals(Constants.ERROR_NOT_REGISTERED)) {
-							// application has been removed from device -
-							// unregister database
-						}
-						msg = error;
-					}
+                    List<RegistrationRecord> rrs =
+                            regService.getAllDevices().execute().getItems();
+                    for (RegistrationRecord rr : rrs) {
+                        String id = rr.getRegId();
+                        if (!id.equals(regId)) {
+                            Result result = sender.send(message, id, 5);
+                            if (result.getMessageId() != null) {
+                                String canonicalRegId = result
+                                        .getCanonicalRegistrationId();
+                                if (canonicalRegId != null) {
+                                    // same device has more than on registration ID:
+                                    // update database
+                                }
+                            } else {
+                                String error = result.getErrorCodeName();
+                                if (error.equals(Constants.ERROR_NOT_REGISTERED)) {
+                                    // application has been removed from device -
+                                    // unregister database
+                                }
+                                msg = error;
+                            }
+                        }
+                    }
 				} catch (IOException ex) {
 					msg = "Error :" + ex.getMessage();
 				}

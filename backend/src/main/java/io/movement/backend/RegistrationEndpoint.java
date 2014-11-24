@@ -76,8 +76,18 @@ public class RegistrationEndpoint {
         return CollectionResponse.<RegistrationRecord>builder().setItems(records).build();
     }
 
+    /**
+     * Return all registered devices
+     *
+     * @return a list of Google Cloud Messaging registration Ids
+     */
+    @ApiMethod(name = "getAllDevices")
+    public CollectionResponse<RegistrationRecord> getAllDevices() {
+        List<RegistrationRecord> records = ofy().load().type(RegistrationRecord.class).list();
+        return CollectionResponse.<RegistrationRecord>builder().setItems(records).build();
+    }
+
     private RegistrationRecord findRecord(String regId) {
         return ofy().load().type(RegistrationRecord.class).filter("regId", regId).first().now();
     }
-
 }
