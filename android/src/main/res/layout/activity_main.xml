@@ -1,45 +1,74 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+<?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
         android:id="@+id/main_layout"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:ems="10"
-                android:id="@+id/chatBox" />
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/ping"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClick"
-            android:text="@string/ping" />
-
-        <Button
-            android:id="@+id/clear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClick"
-            android:text="@string/clear" />
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="bottom">
 
         <TextView
             android:id="@+id/display"
-            android:layout_width="fill_parent"
-            android:layout_height="321dp" />
-    </LinearLayout>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/bottom_container" />
 
-</ScrollView>
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:id="@id/bottom_container"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/bottom_panel"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <EditText
+                    android:id="@+id/chatBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:autoText="true"
+                    android:capitalize="sentences"
+                    android:background="#00ffffff"
+                    android:padding="12dp"
+                    android:paddingRight="0dp"
+                    android:imeOptions="actionSend|flagNoEnterAction"
+                    android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine"
+                    android:maxLength="1000"
+                    android:maxLines="4"
+                    android:nextFocusRight="@+id/ping" />
+
+                <Button
+                    android:id="@+id/ping"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/ping"
+                    android:nextFocusLeft="@+id/chatBox"
+                    android:onClick="onClick"
+                    android:padding="12dp" />
+
+            </LinearLayout>
+
+            <TextView android:id="@+id/space_left"
+                android:paddingLeft="5dip"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="160/160 (1)" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+
+</LinearLayout>

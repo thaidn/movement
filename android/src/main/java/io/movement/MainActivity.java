@@ -140,8 +140,6 @@ public class MainActivity extends FragmentActivity {
             messageManager.sendMessage(mChatBox.getText().toString(), new MessageSentCallback () {
                 public void onMessageSent(String msg) {}
             });
-		} else if (view == findViewById(R.id.clear)) {
-			mDisplay.setText("");
 		}
 	}
 
