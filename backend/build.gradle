@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.google.appengine:gradle-appengine-plugin:1.9.11'
+        classpath 'com.google.appengine:gradle-appengine-plugin:1.9.17'
     }
 }
 
