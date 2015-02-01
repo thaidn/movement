@@ -4,7 +4,7 @@
     <string name="app_name">Movement</string>
     <string name="action_settings">Settings</string>
     <string name="clear">Clear</string>
-	<string name="ping">Ping</string>
+	<string name="ping">Send</string>
     <string name="edit_text_hint">Send message</string>
     <string name="new_message_notification">You have a new message!</string>
 </resources>

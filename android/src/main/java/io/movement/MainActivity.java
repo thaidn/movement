@@ -1,10 +1,12 @@
 package io.movement;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import io.movement.message.ClientMessagingManagerInterface;
 import io.movement.message.ClientMessagingManagerInterface.MessageSentCallback;
 import io.movement.message.GCMClientMessagingManager;
+import io.movement.message.MessageGroupDisplayAdapter;
 import io.movement.message.MixMessageProtos.MixMessage;
 import io.movement.message.MixMessageStorageManagerImpl;
 import io.movement.message.MixMessageStorageManagerInterface;
@@ -20,6 +22,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -37,19 +40,20 @@ public class MainActivity extends FragmentActivity {
 	static final String MESSAGE_CONTENT = "message-content";
 	static final String TAG = "Movement MainActivity";
 
-	TextView mDisplay;
-    EditText mChatBox;
 	ClientMessagingManagerInterface messageManager;
-	Context context;
     MessageNotificationFragment newMessageFragment;
     MixMessageStorageManagerInterface messageStorageManager;
+    EditText mChatBox;
+    ListView mChatDisplay;
+    ArrayList<String> displayedMessages;
+    MessageGroupDisplayAdapter messageAdapter;
 
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Bundle extras = intent.getExtras();
 			Log.i(TAG, extras.toString());
-			maybeCreateNotificationFragment();
+			showNewMessage();
 		}
 	};
 
@@ -57,9 +61,15 @@ public class MainActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		mDisplay = (TextView) findViewById(R.id.display);
+		mChatDisplay = (ListView) findViewById(R.id.display);
+        displayedMessages = new ArrayList<String>();
+        messageAdapter = new MessageGroupDisplayAdapter(
+                this,
+                displayedMessages);
+        mChatDisplay.setAdapter(messageAdapter);
+
         mChatBox = (EditText) findViewById(R.id.chatBox);
-		context = getApplicationContext();
+		final Context context = getApplicationContext();
 		checkPlayServices();
 
 		messageManager = new GCMClientMessagingManager(context);
@@ -122,17 +132,20 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	void showNewMessage() {
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		ft.remove(newMessageFragment).commit();
-        newMessageFragment = null;
+        if (newMessageFragment != null) {
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.remove(newMessageFragment).commit();
+            newMessageFragment = null;
+        }
         Map<Long, MixMessage> messages = messageStorageManager.loadAllMessages();
         for (Map.Entry<Long, MixMessage> entry : messages.entrySet()) {
             Long messageId = entry.getKey();
             MixMessage message = entry.getValue();
-            mDisplay.append(message.getPayload().toStringUtf8());
+            displayedMessages.add(message.getPayload().toStringUtf8());
             messageStorageManager.deleteMessage(messageId);
         }
-	}
+        messageAdapter.notifyDataSetChanged();
+    }
 
 	// Send an upstream message.
 	public void onClick(final View view) {

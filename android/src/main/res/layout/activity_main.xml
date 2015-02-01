@@ -13,11 +13,14 @@
         android:orientation="vertical"
         android:gravity="bottom">
 
-        <TextView
+        <ListView
             android:id="@+id/display"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/bottom_container" />
+            android:layout_above="@+id/bottom_container"
+            android:divider="@null"
+            android:dividerHeight="10dp"
+            />
 
         <LinearLayout
             android:layout_alignParentBottom="true"
@@ -54,7 +57,7 @@
                     android:id="@+id/ping"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
-                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
                     android:text="@string/ping"
                     android:nextFocusLeft="@+id/chatBox"
                     android:onClick="onClick"
