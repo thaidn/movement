@@ -51,10 +51,10 @@
                     android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine"
                     android:maxLength="1000"
                     android:maxLines="4"
-                    android:nextFocusRight="@+id/ping" />
+                    android:nextFocusRight="@+id/send" />
 
                 <Button
-                    android:id="@+id/ping"
+                    android:id="@+id/send"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:gravity="center_vertical"

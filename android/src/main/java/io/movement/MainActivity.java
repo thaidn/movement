@@ -149,10 +149,16 @@ public class MainActivity extends FragmentActivity {
 
 	// Send an upstream message.
 	public void onClick(final View view) {
-		if (view == findViewById(R.id.ping)) {
+		if (view == findViewById(R.id.send)) {
             messageManager.sendMessage(mChatBox.getText().toString(), new MessageSentCallback () {
-                public void onMessageSent(String msg) {}
+                public void onMessageSent(String msg) {
+                    displayedMessages.add(msg);
+                    messageAdapter.notifyDataSetChanged();
+                }
             });
+         displayedMessages.add(mChatBox.getText().toString());
+         messageAdapter.notifyDataSetChanged();
+         mChatBox.setText("");
 		}
 	}
 
